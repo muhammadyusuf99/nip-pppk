@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NIP PPPK FINDER</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 900px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .server-status {
+            background: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .server-status.offline {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            background: white;
+            cursor: pointer;
+        }
+
+        .range-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        button:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        button[type="button"] {
+            width: auto;
+        }
+
+        .stop-btn {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            margin-top: 10px;
+        }
+
+        .stop-btn:hover {
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        /* Loading Container */
+        .loading-container {
+            display: none;
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .loading-container.show {
+            display: block;
+        }
+
+        .loading-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .loading-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 5px;
+        }
+
+        .loading-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        /* Progress Bar */
+        .progress-section {
+            margin-bottom: 20px;
+        }
+
+        .progress-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 12px;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .stat-value.success {
+            color: #28a745;
+        }
+
+        .stat-value.error {
+            color: #dc3545;
+        }
+
+        .stat-value.matched {
+            color: #667eea;
+        }
+
+        /* Time Estimate */
+        .time-estimate {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .time-estimate-label {
+            font-size: 12px;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+
+        .time-estimate-value {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        /* Spinner Animation */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Results Section */
+        .results-container {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .results-container.show {
+            display: block;
+        }
+
+        .results-header {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .results-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .results-subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .result-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(102, 126, 234, 0.2);
+        }
+
+        .result-nip {
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .result-email {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 15px;
+        }
+
+        .result-link {
+            font-size: 12px;
+            color: #999;
+            word-break: break-all;
+            margin-bottom: 15px;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .result-btn {
+            flex: 1;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        .no-results {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .no-results-title {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .no-results-text {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .error {
+            color: #dc3545;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+
+        .success-toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 15px 25px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            display: none;
+            animation: slideIn 0.3s ease;
+            z-index: 1000;
+        }
+
+        .success-toast.show {
+            display: block;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 9998;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 550px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+            position: relative;
+            z-index: 9999;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-icon {
+            font-size: 64px;
+            margin-bottom: 10px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .modal-body {
+            margin-bottom: 25px;
+        }
+
+        .status-check {
+            background: #f0f2ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .status-check-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 10px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .status-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-icon {
+            margin-right: 10px;
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .warning-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #856404;
+            margin-bottom: 8px;
+        }
+
+        .warning-text {
+            font-size: 13px;
+            color: #856404;
+            line-height: 1.6;
+        }
+
+        .error-box {
+            background: #f8d7da;
+            border-left: 4px solid #dc3545;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .error-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #721c24;
+            margin-bottom: 8px;
+        }
+
+        .error-text {
+            font-size: 13px;
+            color: #721c24;
+            line-height: 1.6;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-yes {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+        }
+
+        .modal-btn-yes:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .modal-btn-no {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+            color: white;
+        }
+
+        .modal-btn-no:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(220, 53, 69, 0.4);
+        }
+
+        .modal-link {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .modal-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .modal-link a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive Design */
+        @media screen and (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+
+            /* Announcement responsive */
+            .container > div:first-child {
+                padding: 20px 15px !important;
+            }
+
+            .container > div:first-child h1 {
+                font-size: 22px !important;
+            }
+
+            .container > div:first-child p {
+                font-size: 16px !important;
+            }
+
+            .container > div:first-child > div {
+                padding: 15px !important;
+                font-size: 14px !important;
+            }
+
+            .container > div:first-child a {
+                font-size: 14px !important;
+                padding: 12px 20px !important;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .subtitle {
+                font-size: 12px;
+            }
+
+            /* Data Pribadi Grid - Stack on Mobile */
+            .input-group .data-pribadi-grid {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
+            }
+
+            /* Preview NIP - Responsive Font */
+            #generatedNIP {
+                font-size: 16px !important;
+                letter-spacing: 0.5px !important;
+                word-break: break-all;
+                line-height: 1.4;
+            }
+
+            /* Breakdown Text */
+            #nipBreakdown {
+                font-size: 10px !important;
+            }
+
+            #nipBreakdown > div {
+                padding: 8px !important;
+                margin-bottom: 6px !important;
+            }
+
+            /* Range Group - Keep Horizontal on Mobile */
+            .range-group {
+                grid-template-columns: 1fr 1fr !important;
+                gap: 10px !important;
+            }
+
+            .range-group input {
+                font-size: 14px !important;
+                padding: 10px !important;
+            }
+
+            /* Quick Range Buttons - Keep Horizontal on Mobile */
+            .quick-range-buttons {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 5px !important;
+            }
+
+            .quick-range-buttons button {
+                font-size: 11px !important;
+                padding: 10px 5px !important;
+            }
+
+            /* Stats Grid - 2 Columns on Mobile */
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+
+            .stat-card:last-child {
+                grid-column: span 2;
+            }
+
+            /* Modal Responsive */
+            .modal-content {
+                padding: 20px;
+                width: 95%;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            .modal-icon {
+                font-size: 48px;
+            }
+
+            .modal-title {
+                font-size: 20px;
+            }
+
+            .modal-subtitle {
+                font-size: 12px;
+            }
+
+            .status-item {
+                font-size: 12px;
+            }
+
+            .warning-text, .error-text {
+                font-size: 12px;
+            }
+
+            .modal-footer {
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                padding: 12px;
+                font-size: 14px;
+            }
+
+            /* Loading Container */
+            .loading-title {
+                font-size: 18px;
+            }
+
+            .loading-subtitle {
+                font-size: 12px;
+            }
+
+            .time-estimate-value {
+                font-size: 24px;
+            }
+
+            /* Results */
+            .results-title {
+                font-size: 20px;
+            }
+
+            .result-nip {
+                font-size: 16px;
+                word-break: break-all;
+            }
+
+            .result-email {
+                font-size: 14px;
+            }
+
+            .result-link {
+                font-size: 10px;
+            }
+
+            .result-actions {
+                flex-direction: column;
+            }
+
+            /* Buttons */
+            button {
+                font-size: 14px;
+                padding: 12px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .container {
+                padding: 15px;
+            }
+
+            h1 {
+                font-size: 20px;
+            }
+
+            #generatedNIP {
+                font-size: 14px !important;
+            }
+
+            .stat-value {
+                font-size: 20px;
+            }
+
+            .time-estimate-value {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Pengumuman Limit Vercel -->
+        <div style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 80px; margin-bottom: 20px;">⚠️</div>
+            <h1 style="color: #dc3545; margin-bottom: 20px;">Aplikasi Tidak Tersedia</h1>
+            <p style="font-size: 18px; color: #666; line-height: 1.8; margin-bottom: 30px;">
+                Mohon maaf, aplikasi ini sudah <strong>tidak dapat digunakan</strong> karena <strong>free resource Vercel sudah mencapai limit</strong>.
+            </p>
+
+            <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: left;">
+                <div style="font-weight: 700; color: #856404; margin-bottom: 10px; font-size: 16px;">
+                    📊 Statistik Penggunaan:
+                </div>
+                <div style="color: #856404; line-height: 1.8;">
+                    • <strong>Bandwidth</strong>: Limit tercapai<br>
+                    • <strong>Serverless Functions</strong>: Limit tercapai<br>
+                    • <strong>Build Minutes</strong>: Limit tercapai<br>
+                </div>
+            </div>
+
+            <div style="background: #d4edda; border-left: 4px solid #28a745; padding: 20px; border-radius: 8px; margin-bottom: 30px; text-align: left;">
+                <div style="font-weight: 700; color: #155724; margin-bottom: 10px; font-size: 16px;">
+                    🙏 Terima Kasih!
+                </div>
+                <div style="color: #155724; line-height: 1.8;">
+                    Terima kasih kepada semua yang sudah menggunakan aplikasi <strong>NIP PPPK FINDER</strong>. <br><br>
+                    
+                    Aplikasi ini telah membantu <strong>ribuan PPPK</strong> menemukan NIP mereka dengan mudah dan cepat. 
+                    Dukungan dan antusiasme dari Anda semua sangat luar biasa! ❤️
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr; gap: 15px; max-width: 500px; margin: 0 auto;">
+                <a href="https://github.com/muifaha/nipfinder" target="_blank" style="display: block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 30px; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 16px; transition: transform 0.2s;">
+                    ⭐ Download Source Code (GitHub)
+                </a>
+            </div>
+
+            <div style="margin-top: 40px; padding-top: 30px; border-top: 2px solid #ddd;">
+                <p style="color: #999; font-size: 12px; margin-top: 20px;">
+                    Created with ❤️ by <strong>Muif Aha</strong><br>
+                    Open Source Project • MIT License<br>
+                    Terima kasih atas pengertiannya 🙏
+                </p>
+            </div>
+        </div>
+
+        <!-- Original App Content (Hidden) -->
+        <div style="display: none;">
+        <h1>🔗 NI PPPK FINDER</h1>
+        <p class="subtitle">Created by Muif Aha - Pencari NIP PPPK 18 Digit Otomatis</p>
+        <p class="subtitle" style="margin-top: 5px;">
+            <a href="https://github.com/muifaha/nipfinder" target="_blank" style="color: #667eea; text-decoration: none; font-weight: 600;">
+                <span style="font-size: 16px;">⭐</span> Source Code on GitHub
+            </a>
+        </p>
+
+        <div class="server-status" id="serverStatus">
+            🔄 Memeriksa koneksi server...
+        </div>
+
+        <div class="input-group">
+            <label>Data Pribadi untuk Generate NIP (18 Digit):</label>
+            
+            <div class="data-pribadi-grid" style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                <div>
+                    <label style="font-size: 12px; color: #666; margin-bottom: 5px; display: block;">Tanggal Lahir</label>
+                    <input type="date" id="birthDate" style="width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: #666; margin-bottom: 5px; display: block;">Tahun Angkat</label>
+                    <input type="number" id="yearAppointed" placeholder="2025" min="2000" max="2099" style="width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px;">
+                </div>
+                <div>
+                    <label style="font-size: 12px; color: #666; margin-bottom: 5px; display: block;">Jenis Kelamin</label>
+                    <select id="gender" style="width: 100%; padding: 12px 15px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; background: white; cursor: pointer;">
+                        <option value="">Pilih</option>
+                        <option value="1">Laki-laki</option>
+                        <option value="2">Perempuan</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="background: #f0f2ff; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea;">
+                <div style="font-size: 12px; color: #666; margin-bottom: 5px;">Preview NIP 18 Digit:</div>
+                <div id="generatedNIP" style="font-size: 22px; font-weight: 700; color: #667eea; font-family: 'Courier New', monospace; letter-spacing: 1px; word-break: break-all; line-height: 1.3;">
+                    -
+                </div>
+                <div id="nipBreakdown" style="font-size: 11px; color: #888; margin-top: 10px; line-height: 1.8; border-top: 1px solid #ddd; padding-top: 8px;">
+                    <div style="margin-bottom: 5px;"><strong>Format NIP 18 Digit:</strong></div>
+                    <div>YYYYMMDD (Tgl Lahir) + YYYY (Tahun Angkat) + 21 (PPPK) + G (Jenis Kelamin) + <span style="color: #dc3545; font-weight: 700;">XXX</span></div>
+                    <div style="margin-top: 8px; color: #dc3545; font-weight: 600;">
+                        ⚠️ XXX = 3 digit terakhir (001-999) yang akan dicari secara otomatis
+                    </div>
+                </div>
+            </div>
+            <span class="error" id="baseError"></span>
+        </div>
+
+        <div class="input-group">
+            <label for="targetEmail">Email Anda untuk Verifikasi (Full Email):</label>
+            <input type="email" id="targetEmail" placeholder="Contoh: namaanda@email.com">
+            <span class="error" id="emailError"></span>
+            <p class="subtitle" style="margin-top: 5px;">*Wajib diisi untuk menyaring NIP berdasarkan email yang cocok.</p>
+        </div>
+
+        <div class="input-group">
+            <label>Range 3 Digit Terakhir (001-999):</label>
+            <div class="range-group">
+                <div>
+                    <input type="number" id="rangeStart" placeholder="001" min="1" max="999" value="1">
+                </div>
+                <div>
+                    <input type="number" id="rangeEnd" placeholder="150" min="1" max="999" value="150">
+                </div>
+            </div>
+            <span class="error" id="rangeError"></span>
+            
+            <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; border-radius: 6px; margin-top: 10px;">
+                <div style="font-size: 12px; color: #856404; line-height: 1.6;">
+                    <strong>💡 Tips Pencarian Efisien:</strong><br>
+                    • Cari <strong>bertahap</strong> untuk hasil lebih cepat<br>
+                    • NIP biasanya <strong>jarang di atas 200</strong><br>
+                    • Mulai dari <strong>001-150</strong> (±45 detik)<br>
+                    • Jika tidak ketemu, coba <strong>151-300</strong> (±45 detik)<br>
+                    • Hindari langsung <strong>1-999</strong> (±5 menit)
+                </div>
+            </div>
+            
+            <div style="margin-top: 10px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;" class="quick-range-buttons">
+                <button type="button" onclick="setRange(1, 150)" style="padding: 8px; font-size: 13px; background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                    ⚡ 001-150
+                </button>
+                <button type="button" onclick="setRange(151, 300)" style="padding: 8px; font-size: 13px; background: linear-gradient(135deg, #17a2b8 0%, #138496 100%);">
+                    🔍 151-300
+                </button>
+                <button type="button" onclick="setRange(301, 500)" style="padding: 8px; font-size: 13px; background: linear-gradient(135deg, #ffc107 0%, #e0a800 100%);">
+                    📊 301-500
+                </button>
+            </div>
+        </div>
+
+        <button onclick="startSearch()" id="searchBtn">🔍 Cari NIP Saya</button>
+        <button class="stop-btn" onclick="stopSearch()" id="stopBtn" style="display:none;">⏹️ Hentikan Pencarian</button>
+
+        <!-- Loading Container -->
+        <div class="loading-container" id="loadingContainer">
+            <div class="loading-header">
+                <div class="loading-title">
+                    <span class="spinner"></span>
+                    Sedang Mencari NIP Anda...
+                </div>
+                <div class="loading-subtitle">Mohon tunggu, sistem sedang memproses</div>
+            </div>
+
+            <div class="time-estimate">
+                <div class="time-estimate-label">ESTIMASI WAKTU</div>
+                <div class="time-estimate-value" id="timeEstimate">00:00</div>
+            </div>
+
+            <div class="progress-section">
+                <div class="progress-info">
+                    <span>Progress: <strong id="currentProgress">0</strong> / <strong id="totalProgress">0</strong></span>
+                    <span><strong id="progressPercent">0%</strong></span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="progressBarFill">0%</div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Sukses</div>
+                    <div class="stat-value success" id="successCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Error</div>
+                    <div class="stat-value error" id="errorCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Cocok</div>
+                    <div class="stat-value matched" id="matchedCount">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results Container -->
+        <div class="results-container" id="resultsContainer">
+            <div class="results-header">
+                <div class="results-title">✅ NIP Ditemukan!</div>
+                <div class="results-subtitle">Berikut adalah NIP yang cocok dengan email Anda</div>
+                <div style="margin-top: 10px; font-size: 12px; opacity: 0.9;">
+                    <a href="https://github.com/muifaha/nipfinder" target="_blank" style="color: white; text-decoration: none;">
+                        ⭐ Star us on GitHub
+                    </a>
+                </div>
+            </div>
+            <div id="resultsContent"></div>
+        </div>
+    </div>
+
+    <div class="success-toast" id="toast">Berhasil!</div>
+
+    <!-- Modal Konfirmasi Status -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">⚠️</div>
+                <div class="modal-title">Periksa Status MOLA BKN</div>
+                <div class="modal-subtitle">Pastikan status Anda sudah sesuai sebelum mencari NIP</div>
+            </div>
+            
+            <div class="modal-body">
+                <div class="status-check">
+                    <div class="status-check-title">✅ Status yang HARUS Sudah Tercapai:</div>
+                    <div class="status-item">
+                        <span class="status-icon">✔️</span>
+                        <span><strong>"Proses Pembuatan SK Berhasil"</strong> di MOLA BKN</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-icon">✔️</span>
+                        <span>SK PPPK sudah terbit</span>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-icon">✔️</span>
+                        <span>NIP sudah dibuat oleh sistem BKN</span>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    <div class="warning-title">⏳ Jika Status Anda Masih:</div>
+                    <div class="warning-text">
+                        • "Menunggu TTD Pertek"<br>
+                        • "Verifikasi Berkas"<br>
+                        • "Proses Pembuatan SK"<br>
+                        • Atau status lainnya sebelum "Berhasil"<br>
+                        <br>
+                        <strong>→ NIP belum tersedia di sistem!</strong>
+                    </div>
+                </div>
+
+                <div class="error-box">
+                    <div class="error-title">❌ Jangan Lanjutkan Jika:</div>
+                    <div class="error-text">
+                        • Status belum "Proses Pembuatan SK Berhasil"<br>
+                        • SK belum keluar<br>
+                        • Anda akan membuang waktu mencari NIP yang belum ada<br>
+                        <br>
+                        <strong>Cek dulu MOLA BKN Anda!</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="modal-btn modal-btn-no" onclick="closeModal()">
+                    ❌ Belum, Cek Dulu
+                </button>
+                <button class="modal-btn modal-btn-yes" onclick="confirmAndSearch()">
+                    ✅ Ya, Sudah Siap
+                </button>
+            </div>
+
+            <div class="modal-link">
+                <a href="https://sscasn.bkn.go.id/" target="_blank">🔗 Buka MOLA BKN</a>
+            </div>
+
+            <div class="modal-link" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid #ddd;">
+                <a href="https://github.com/muifaha/nipfinder" target="_blank">⭐ Source Code on GitHub</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vercel Analytics -->
+    <script>
+        window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+    </script>
+    <script defer src="/_vercel/insights/script.js"></script>
+
+    <script>
+        const API_BASE = window.location.origin;
+        let isSearching = false;
+        let shouldStop = false;
+        let startTime = null;
+
+        window.addEventListener('load', checkServerStatus);
+
+        // Auto-generate NIP when inputs change
+        document.addEventListener('DOMContentLoaded', function() {
+            const birthDateInput = document.getElementById('birthDate');
+            const yearInput = document.getElementById('yearAppointed');
+            const genderInput = document.getElementById('gender');
+
+            if (birthDateInput && yearInput && genderInput) {
+                birthDateInput.addEventListener('change', generateNIPPreview);
+                yearInput.addEventListener('input', generateNIPPreview);
+                genderInput.addEventListener('change', generateNIPPreview);
+            }
+        });
+
+        function generateNIPPreview() {
+            const birthDate = document.getElementById('birthDate').value;
+            const yearAppointed = document.getElementById('yearAppointed').value;
+            const gender = document.getElementById('gender').value;
+            const generatedNIPEl = document.getElementById('generatedNIP');
+            const nipBreakdownEl = document.getElementById('nipBreakdown');
+
+            if (!birthDate || !yearAppointed || !gender) {
+                generatedNIPEl.textContent = '-';
+                nipBreakdownEl.innerHTML = `
+                    <div style="margin-bottom: 5px;"><strong>Format NIP 18 Digit:</strong></div>
+                    <div>YYYYMMDD (Tgl Lahir) + YYYY (Tahun Angkat) + 21 (PPPK) + G (Jenis Kelamin) + <span style="color: #dc3545; font-weight: 700;">XXX</span></div>
+                    <div style="margin-top: 8px; color: #dc3545; font-weight: 600;">
+                        ⚠️ XXX = 3 digit terakhir (001-999) yang akan dicari secara otomatis
+                    </div>
+                `;
+                return;
+            }
+
+            // Parse date from YYYY-MM-DD
+            const date = new Date(birthDate);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+
+            // Generate NIP with XXX
+            const birthPart = `${year}${month}${day}`;
+            const yearPart = yearAppointed;
+            const nip = `${birthPart}${yearPart}21${gender}XXX`;
+
+            // Display
+            generatedNIPEl.textContent = nip;
+            
+            // Breakdown with colors
+            const genderText = gender === '1' ? 'Laki-laki' : 'Perempuan';
+            const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            const monthName = monthNames[parseInt(month) - 1];
+            
+            nipBreakdownEl.innerHTML = `
+                <div style="margin-bottom: 8px;"><strong>Penjelasan NIP Anda:</strong></div>
+                <div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px;">
+                    <span style="color: #28a745; font-weight: 700;">${birthPart}</span> 
+                    <span style="color: #666;">→ Lahir: ${day} ${monthName} ${year}</span>
+                </div>
+                <div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px;">
+                    <span style="color: #007bff; font-weight: 700;">${yearPart}</span> 
+                    <span style="color: #666;">→ Diangkat Tahun: ${yearPart}</span>
+                </div>
+                <div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px;">
+                    <span style="color: #ffc107; font-weight: 700;">21</span> 
+                    <span style="color: #666;">→ Status: PPPK</span>
+                </div>
+                <div style="background: white; padding: 10px; border-radius: 6px; margin-bottom: 8px;">
+                    <span style="color: #dc3545; font-weight: 700;">${gender}</span> 
+                    <span style="color: #666;">→ Jenis Kelamin: ${genderText}</span>
+                </div>
+                <div style="background: #fff5f5; padding: 10px; border-radius: 6px; border: 2px dashed #dc3545;">
+                    <span style="color: #dc3545; font-weight: 700;">XXX</span> 
+                    <span style="color: #dc3545; font-weight: 600;">→ 3 digit terakhir yang akan dicari (001-999)</span>
+                </div>
+            `;
+        }
+
+        function getBaseDigits() {
+            const birthDate = document.getElementById('birthDate').value;
+            const yearAppointed = document.getElementById('yearAppointed').value;
+            const gender = document.getElementById('gender').value;
+
+            if (!birthDate || !yearAppointed || !gender) {
+                return null;
+            }
+
+            // Parse date from YYYY-MM-DD
+            const date = new Date(birthDate);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+
+            return `${year}${month}${day}${yearAppointed}21${gender}`;
+        }
+
+        async function checkServerStatus() {
+            const statusEl = document.getElementById('serverStatus');
+            try {
+                const response = await fetch(`${API_BASE}/api/proxy?username=test&token=test&captcha=test`);
+                statusEl.className = 'server-status';
+                statusEl.innerHTML = '✅ Server Online - Siap digunakan!';
+            } catch (error) {
+                statusEl.className = 'server-status offline';
+                statusEl.innerHTML = '❌ Server Offline - Ada masalah koneksi!';
+            }
+        }
+
+        function validateInputs() {
+            let isValid = true;
+            
+            const birthDate = document.getElementById('birthDate').value;
+            const yearAppointed = document.getElementById('yearAppointed').value;
+            const gender = document.getElementById('gender').value;
+            const baseError = document.getElementById('baseError');
+            
+            if (!birthDate) {
+                baseError.textContent = 'Tanggal lahir wajib diisi!';
+                isValid = false;
+            } else if (!yearAppointed) {
+                baseError.textContent = 'Tahun pengangkatan wajib diisi!';
+                isValid = false;
+            } else if (!gender) {
+                baseError.textContent = 'Jenis kelamin wajib dipilih!';
+                isValid = false;
+            } else {
+                const year = parseInt(yearAppointed);
+                if (year < 2000 || year > 2099) {
+                    baseError.textContent = 'Tahun pengangkatan harus antara 2000-2099!';
+                    isValid = false;
+                } else {
+                    baseError.textContent = '';
+                }
+            }
+            
+            const targetEmail = document.getElementById('targetEmail').value.trim();
+            const emailError = document.getElementById('emailError');
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+            if (!targetEmail) {
+                emailError.textContent = 'Email wajib diisi!';
+                isValid = false;
+            } else if (!emailRegex.test(targetEmail)) {
+                emailError.textContent = 'Format email tidak valid!';
+                isValid = false;
+            } else {
+                emailError.textContent = '';
+            }
+
+            const rangeStart = parseInt(document.getElementById('rangeStart').value);
+            const rangeEnd = parseInt(document.getElementById('rangeEnd').value);
+            const rangeError = document.getElementById('rangeError');
+
+            if (rangeStart < 1 || rangeStart > 999 || rangeEnd < 1 || rangeEnd > 999) {
+                rangeError.textContent = 'Range harus antara 1-999!';
+                isValid = false;
+            } else if (rangeStart > rangeEnd) {
+                rangeError.textContent = 'Angka awal harus lebih kecil dari angka akhir!';
+                isValid = false;
+            } else {
+                rangeError.textContent = '';
+            }
+
+            return isValid;
+        }
+
+        function isEmailMatch(userEmail, censoredEmail) {
+            if (!userEmail || !censoredEmail) return false;
+            
+            const full = userEmail.trim().toLowerCase();
+            const censored = censoredEmail.trim().toLowerCase();
+            const delimiter = '*****';
+
+            if (!censored.includes(delimiter)) {
+                return full === censored;
+            }
+            
+            const parts = censored.split(delimiter);
+            if (parts.length < 1) return false;
+            
+            const censoredPrefix = parts[0];
+            const requiredPrefix = censoredPrefix.substring(0, 3);
+            const userPrefix = full.substring(0, requiredPrefix.length);
+
+            return (userPrefix === requiredPrefix);
+        }
+
+        function updateTimer() {
+            if (!startTime) return;
+            const elapsed = Math.floor((Date.now() - startTime) / 1000);
+            const minutes = Math.floor(elapsed / 60);
+            const seconds = elapsed % 60;
+            document.getElementById('timeEstimate').textContent = 
+                `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        async function startSearch() {
+            if (!validateInputs()) return;
+            if (isSearching) return;
+
+            // Show modal confirmation first
+            showModal();
+        }
+
+        function showModal() {
+            document.getElementById('modalOverlay').classList.add('show');
+            document.body.style.overflow = 'hidden'; // Prevent scrolling
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('show');
+            document.body.style.overflow = ''; // Restore scrolling
+            showToast('⏳ Silakan cek status MOLA BKN terlebih dahulu');
+        }
+
+        async function confirmAndSearch() {
+            // Close modal
+            document.getElementById('modalOverlay').classList.remove('show');
+            document.body.style.overflow = '';
+
+            // Start actual search
+            isSearching = true;
+            shouldStop = false;
+            startTime = Date.now();
+
+            // Hide results, show loading
+            document.getElementById('resultsContainer').classList.remove('show');
+            document.getElementById('loadingContainer').classList.add('show');
+            document.getElementById('searchBtn').style.display = 'none';
+            document.getElementById('stopBtn').style.display = 'block';
+
+            // Get inputs
+            const baseDigits = getBaseDigits();
+            if (!baseDigits) {
+                alert('Gagal generate NIP. Pastikan semua data sudah diisi!');
+                isSearching = false;
+                document.getElementById('searchBtn').style.display = 'block';
+                document.getElementById('stopBtn').style.display = 'none';
+                document.getElementById('loadingContainer').classList.remove('show');
+                return;
+            }
+            const targetEmail = document.getElementById('targetEmail').value.trim().toLowerCase();
+            const rangeStart = parseInt(document.getElementById('rangeStart').value);
+            const rangeEnd = parseInt(document.getElementById('rangeEnd').value);
+            const token = '$2b$10$.9ehUjHkAGEMeMLdUh3.teDmqNaU9o3QVt7xdFv9elaEGoek03cRu';
+            const captcha = 'sL2c';
+
+            const total = rangeEnd - rangeStart + 1;
+            document.getElementById('totalProgress').textContent = total;
+
+            let processed = 0;
+            let success = 0;
+            let errors = 0;
+            let matched = 0;
+            const matchedResults = [];
+
+            // Start timer
+            const timerInterval = setInterval(updateTimer, 1000);
+
+            // Process each NIP
+            for (let i = rangeStart; i <= rangeEnd; i++) {
+                if (shouldStop) break;
+
+                const suffix = String(i).padStart(3, '0');
+                const username = baseDigits + suffix;
+
+                try {
+                    const proxyUrl = `${API_BASE}/api/proxy?username=${username}&token=${encodeURIComponent(token)}&captcha=${captcha}`;
+                    const response = await fetch(proxyUrl);
+                    const result = await response.json();
+
+                    if (result.success && result.data) {
+                        success++;
+                        
+                        if (result.data.status === true && result.data.data && result.data.data.email) {
+                            if (isEmailMatch(targetEmail, result.data.data.email)) {
+                                matched++;
+                                matchedResults.push({
+                                    nip: username,
+                                    email: result.data.data.email,
+                                    url: `https://asndigital.bkn.go.id/api/forget-password?username=${username}&token=${encodeURIComponent(token)}&captcha=${captcha}`
+                                });
+                            }
+                        }
+                    } else {
+                        errors++;
+                    }
+                } catch (error) {
+                    errors++;
+                }
+
+                processed++;
+                updateProgress(processed, total, success, errors, matched);
+                
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            clearInterval(timerInterval);
+            isSearching = false;
+            document.getElementById('searchBtn').style.display = 'block';
+            document.getElementById('stopBtn').style.display = 'none';
+            document.getElementById('loadingContainer').classList.remove('show');
+
+            // Show results
+            displayResults(matchedResults);
+        }
+
+        function updateProgress(current, total, success, errors, matched) {
+            const percent = Math.round((current / total) * 100);
+            
+            document.getElementById('currentProgress').textContent = current;
+            document.getElementById('progressPercent').textContent = percent + '%';
+            document.getElementById('progressBarFill').style.width = percent + '%';
+            document.getElementById('progressBarFill').textContent = percent + '%';
+            document.getElementById('successCount').textContent = success;
+            document.getElementById('errorCount').textContent = errors;
+            document.getElementById('matchedCount').textContent = matched;
+        }
+
+        function displayResults(results) {
+            const container = document.getElementById('resultsContainer');
+            const content = document.getElementById('resultsContent');
+            
+            content.innerHTML = '';
+
+            if (results.length === 0) {
+                content.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-title">❌ Tidak Ada NIP yang Cocok</div>
+                        <div class="no-results-text">
+                            Tidak ditemukan NIP yang cocok dengan email Anda.<br><br>
+                            <strong>Saran:</strong><br>
+                            1. Pastikan email yang dimasukkan sudah benar<br>
+                            2. Coba perluas range pencarian (1-999)<br>
+                            3. Periksa kembali 15 digit angka dasar
+                        </div>
+                    </div>
+                `;
+            } else {
+                results.forEach(result => {
+                    const card = document.createElement('div');
+                    card.className = 'result-card';
+                    card.innerHTML = `
+                        <div class="result-nip">NIP: ${result.nip}</div>
+                        <div class="result-email">📧 Email: ${result.email}</div>
+                        <div class="result-link">${result.url}</div>
+                        <div class="result-actions">
+                            <button class="result-btn" onclick="window.open('${result.url}', '_blank')">
+                                🔗 Buka Link
+                            </button>
+                            <button class="result-btn" onclick="copyLink('${result.url}')">
+                                📋 Copy Link
+                            </button>
+                        </div>
+                    `;
+                    content.appendChild(card);
+                });
+
+                showToast(`✅ Ditemukan ${results.length} NIP yang cocok!`);
+            }
+
+            container.classList.add('show');
+        }
+
+        function stopSearch() {
+            shouldStop = true;
+            showToast('⏹️ Pencarian dihentikan');
+        }
+
+        function copyLink(link) {
+            navigator.clipboard.writeText(link).then(() => {
+                showToast('📋 Link berhasil disalin!');
+            }).catch(err => {
+                showToast('❌ Gagal menyalin link!');
+            });
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        function setRange(start, end) {
+            document.getElementById('rangeStart').value = start;
+            document.getElementById('rangeEnd').value = end;
+            
+            // Clear any existing range errors
+            document.getElementById('rangeError').textContent = '';
+            
+            // Show toast with estimated time
+            const total = end - start + 1;
+            const estimatedSeconds = Math.ceil(total * 0.3);
+            const estimatedMinutes = Math.floor(estimatedSeconds / 60);
+            const remainingSeconds = estimatedSeconds % 60;
+            
+            let timeText = '';
+            if (estimatedMinutes > 0) {
+                timeText = `${estimatedMinutes} menit ${remainingSeconds} detik`;
+            } else {
+                timeText = `${estimatedSeconds} detik`;
+            }
+            
+            showToast(`✅ Range ${start}-${end} dipilih (±${timeText})`);
+        }
+        </div>
+        <!-- End Hidden Content -->
+    </script>
+</body>
+</html>
